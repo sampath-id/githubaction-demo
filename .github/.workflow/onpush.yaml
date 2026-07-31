@@ -1,18 +1,37 @@
-# 02 - Trigger: push
-# Runs EVERY TIME code is pushed to the repository (any branch).
-# This is the most common Continuous Integration trigger.
+# 05 - Trigger: workflow_dispatch (manual run with inputs)
+# Adds a "Run workflow" button to the Actions tab.
+# Great for deployments, one-off tasks, or letting testers pick options.
 
-name: 02 - On Push
+name: 05 - Manual Run With Inputs
 
-on: push   # short form: run on every push to any branch
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice          # renders a dropdown in the UI
+        options:
+          - staging
+          - production
+      version:
+        description: 'Version to deploy (e.g. 1.4.0)'
+        required: false
+        default: 'latest'
+        type: string
+      dry_run:
+        description: 'Only simulate, do not actually deploy'
+        required: false
+        default: true
+        type: boolean
 
 jobs:
-  on-push:
+  manual-job:
     runs-on: ubuntu-latest
     steps:
-      - name: Show what triggered this run
+      - name: Show the inputs the user selected
         run: |
-          echo "Event name : $GITHUB_EVENT_NAME"   # -> push
-          echo "Branch ref : $GITHUB_REF"          # -> refs/heads/<branch>
-          echo "Commit SHA: $GITHUB_SHA"
-          echo "Pushed by : $GITHUB_ACTOR"
+          echo "Environment : ${{ inputs.environment }}"
+          echo "Version     : ${{ inputs.version }}"
+          echo "Dry run?    : ${{ inputs.dry_run }}"
